@@ -21,19 +21,19 @@ Refs (study only, not shipped in UI): `docs/refs/` (AlongWalker public photos).
 ## Assumed front layout (top → bottom)
 
 ```
-┌───────────────────────────────┐
+┌──────────────────────────────┐
 │         Pocket Chop          │  remake name only
-│ ╭─ black oval bezel ──────╮ │
+│ ╭─ black oval bezel ───────╮ │
 │ │ [lime D-pad] OLED [A◆D]  │ │  + small FX1/FX2 hold
 │ ╰──────────────────────────╯ │
-│   ◘ FX1   INPUT/MAIN   ◘ FX2 │  two large circular knobs;
+│   ◎ FX1   INPUT/MAIN   ◎ FX2 │  two large circular knobs;
 │           VOL sliders        │  short vols BETWEEN knobs
 │  (▶)(■)(REC)(ONE)(LOOP)(DEL)(EDIT) │ round keys
 │  [13][14][15][16]  orange    │
 │  [ 9][10][11][12]  purple    │  4×4 pads dominate
 │  [ 5][ 6][ 7][ 8]  cyan      │
 │  [ 1][ 2][ 3][ 4]  green     │  (row glow like photos)
-└───────────────────────────────┘
+└──────────────────────────────┘
    companion: library / Seed / SEQ / SYS (dark, outside)
 ```
 
