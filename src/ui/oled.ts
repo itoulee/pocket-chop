@@ -151,26 +151,57 @@ export class OledRenderer {
     const mode = this.store.displayMode()
     this.clear()
     switch (mode) {
-      case 'PLAY': this.drawPlay(s); break
-      case 'BANK': this.drawBank(s); break
-      case 'SEQ': this.drawSeq(s); break
-      case 'SEQ_EDIT': this.drawSeqEdit(s); break
-      case 'REC': this.drawRec(s); break
-      case 'AUTO_CHOP': this.drawAutoChop(s); break
-      case 'DEL': this.drawDel(s); break
-      case 'EDIT': this.drawEdit(s); break
-      case 'FX1': this.drawFx1(s); break
-      case 'FX2': this.drawFx2(s); break
-      case 'SYS': this.drawSys(s); break
-      case 'SYS_BEAT': this.drawSysBeat(s); break
-      case 'SYS_MIDI': this.drawSysMidi(s); break
-      case 'SYS_INIT': this.drawSysInit(s); break
-      default: this.text(0, 0, String(mode))
+      case 'PLAY':
+        this.drawPlay(s)
+        break
+      case 'BANK':
+        this.drawBank(s)
+        break
+      case 'SEQ':
+        this.drawSeq(s)
+        break
+      case 'SEQ_EDIT':
+        this.drawSeqEdit(s)
+        break
+      case 'REC':
+        this.drawRec(s)
+        break
+      case 'AUTO_CHOP':
+        this.drawAutoChop(s)
+        break
+      case 'DEL':
+        this.drawDel(s)
+        break
+      case 'EDIT':
+        this.drawEdit(s)
+        break
+      case 'FX1':
+        this.drawFx1(s)
+        break
+      case 'FX2':
+        this.drawFx2(s)
+        break
+      case 'SYS':
+        this.drawSys(s)
+        break
+      case 'SYS_BEAT':
+        this.drawSysBeat(s)
+        break
+      case 'SYS_MIDI':
+        this.drawSysMidi(s)
+        break
+      case 'SYS_INIT':
+        this.drawSysInit(s)
+        break
+      default:
+        this.text(0, 0, String(mode))
     }
     this.flush()
   }
 
-  private slotLetter(s: AppState) { return 'ABCD'[s.bankSlot] }
+  private slotLetter(s: AppState) {
+    return 'ABCD'[s.bankSlot]
+  }
 
   private drawPlay(s: AppState) {
     const zh = s.lang === 'zh'
@@ -179,6 +210,7 @@ export class OledRenderer {
     const pad = s.pads[s.selectedPad]
     this.text(0, 10, `PAD ${String(s.selectedPad + 1).padStart(2, '0')} ${pad.name}`)
     this.text(0, 20, pad.playMode === 'loop' ? (zh ? 'LOOP' : 'LOOP') : 'OSHOT')
+    // occupancy
     for (let i = 0; i < 16; i++) {
       const x = 2 + (i % 8) * 15
       const y = 32 + Math.floor(i / 8) * 10
@@ -186,6 +218,9 @@ export class OledRenderer {
       if (i === s.selectedPad) this.fillRect(x - 1, y - 1, 12, 9)
       if (has) this.fillRect(x, y, 10, 7, i !== s.selectedPad)
       else this.hline(x, y + 3, 10)
+      if (i === s.selectedPad) {
+        // invert text area already filled — punch holes for empty look
+      }
     }
     this.text(0, 56, `FX1:${s.fx1Type.slice(0, 5)} FX2:${s.fx2Type.slice(0, 3)}`)
   }
@@ -195,7 +230,10 @@ export class OledRenderer {
     const labels = ['A', 'B', 'C', 'D']
     for (let i = 0; i < 4; i++) {
       const x = 10 + i * 28
-      if (i === s.bankSlot) this.fillRect(x - 2, 20, 16, 12)
+      if (i === s.bankSlot) {
+        this.fillRect(x - 2, 20, 16, 12)
+        // draw letter by clearing? just draw after in dark — skip, draw outline
+      }
       this.text(x, 22, i === s.bankSlot ? `[${labels[i]}]` : ` ${labels[i]} `)
     }
     this.text(0, 40, `BANK ${String(s.bankIndex).padStart(2, '0')}/80`)
@@ -221,9 +259,16 @@ export class OledRenderer {
   }
 
   private drawSeqEdit(s: AppState) {
-    const items = [`PATTERN ${String(s.patternIndex + 1).padStart(2, '0')}`, `BARS ${s.patterns[s.patternIndex].bars}`, `QUANT ${s.quantize}`, `SWING ${s.swing}%`]
+    const items = [
+      `PATTERN ${String(s.patternIndex + 1).padStart(2, '0')}`,
+      `BARS ${s.patterns[s.patternIndex].bars}`,
+      `QUANT ${s.quantize}`,
+      `SWING ${s.swing}%`,
+    ]
     this.text(0, 0, 'SEQ SETTINGS')
-    items.forEach((t, i) => this.text(0, 12 + i * 10, (i === s.seqEditIndex ? '>' : ' ') + t))
+    items.forEach((t, i) => {
+      this.text(0, 12 + i * 10, (i === s.seqEditIndex ? '>' : ' ') + t)
+    })
     this.text(0, 56, 'BACK=SAVE')
   }
 
@@ -231,29 +276,98 @@ export class OledRenderer {
     this.text(0, 0, `REC IN:${s.inputSource.toUpperCase().slice(0, 6)}`)
     this.text(0, 12, s.recArmed ? '*RECORDING*' : ' WAITING')
     const bars = Math.round(s.recPeak * 16)
-    this.text(0, 28, 'LVL'); this.fillRect(24, 28, Math.max(1, bars * 6), 8)
-    this.text(0, 44, 'STOP THEN PAD'); this.text(0, 56, 'TO ASSIGN')
+    this.text(0, 28, 'LVL')
+    this.fillRect(24, 28, Math.max(1, bars * 6), 8)
+    this.text(0, 44, 'STOP THEN PAD')
+    this.text(0, 56, 'TO ASSIGN')
   }
 
   private drawAutoChop(s: AppState) {
-    this.text(0, 0, 'AUTO CHOP'); this.text(0, 14, `SRC PAD ${String(s.selectedPad + 1).padStart(2, '0')}`)
-    this.text(0, 28, `> SLICES ${s.autoChopSlices}`); this.text(0, 40, `  THRESH ${['LO', 'MED', 'HI'][s.autoChopThresh] || 'MED'}`); this.text(0, 56, 'ENTER=APPLY')
+    this.text(0, 0, 'AUTO CHOP')
+    this.text(0, 14, `SRC PAD ${String(s.selectedPad + 1).padStart(2, '0')}`)
+    this.text(0, 28, `> SLICES ${s.autoChopSlices}`)
+    this.text(0, 40, `  THRESH ${['LO', 'MED', 'HI'][s.autoChopThresh] || 'MED'}`)
+    this.text(0, 56, 'ENTER=APPLY')
   }
-  private drawDel(s: AppState) { this.text(0, 0, 'DELETE'); this.text(0, 16, `PAD ${String(s.selectedPad + 1).padStart(2, '0')}`); this.text(0, 28, s.pads[s.selectedPad].name); this.text(0, 44, s.delYes ? '[YES]  NO' : ' YES  [NO]'); this.text(0, 56, 'ENTER/BACK') }
+
+  private drawDel(s: AppState) {
+    this.text(0, 0, 'DELETE')
+    this.text(0, 16, `PAD ${String(s.selectedPad + 1).padStart(2, '0')}`)
+    this.text(0, 28, s.pads[s.selectedPad].name)
+    this.text(0, 44, s.delYes ? '[YES]  NO' : ' YES  [NO]')
+    this.text(0, 56, 'ENTER/BACK')
+  }
+
   private drawEdit(s: AppState) {
     const p = s.pads[s.selectedPad]
     this.text(0, 0, `EDIT PAD ${String(s.selectedPad + 1).padStart(2, '0')}`)
-    for (let i = 0; i < 64; i++) { const h = 2 + Math.round(6 * Math.abs(Math.sin(i / 5 + s.selectedPad))); this.fillRect(32 + i, 20 - h / 2, 1, h) }
-    const sw = Math.round(p.start * 64); const ew = Math.round(p.end * 64); this.hline(32 + sw, 26, Math.max(1, ew - sw))
-    const params = [`START ${p.start.toFixed(2)}`, `END   ${p.end.toFixed(2)}`, `PITCH ${p.pitchSemitones >= 0 ? '+' : ''}${p.pitchSemitones}`, `SPEED ${Math.round(p.speed * 100)}%`, `VOL   ${Math.round(p.volume * 100)}%`, `MODE  ${p.playMode === 'loop' ? 'LOOP' : 'ONE'}`]
-    const idx = s.editParam % params.length; this.text(0, 32, '>' + params[idx]); this.text(0, 44, ' ' + params[(idx + 1) % params.length]); this.text(0, 56, 'BACK=OK')
+    // crude wave
+    for (let i = 0; i < 64; i++) {
+      const h = 2 + Math.round(6 * Math.abs(Math.sin(i / 5 + s.selectedPad)))
+      this.fillRect(32 + i, 20 - h / 2, 1, h)
+    }
+    const sw = Math.round(p.start * 64)
+    const ew = Math.round(p.end * 64)
+    this.hline(32 + sw, 26, Math.max(1, ew - sw))
+    const params = [
+      `START ${p.start.toFixed(2)}`,
+      `END   ${p.end.toFixed(2)}`,
+      `PITCH ${p.pitchSemitones >= 0 ? '+' : ''}${p.pitchSemitones}`,
+      `SPEED ${Math.round(p.speed * 100)}%`,
+      `VOL   ${Math.round(p.volume * 100)}%`,
+      `MODE  ${p.playMode === 'loop' ? 'LOOP' : 'ONE'}`,
+    ]
+    const idx = s.editParam % params.length
+    this.text(0, 32, '>' + params[idx])
+    this.text(0, 44, ' ' + params[(idx + 1) % params.length])
+    this.text(0, 56, 'BACK=OK')
   }
-  private drawFx1(s: AppState) { this.text(0, 0, 'FX1 *HOLD*'); this.text(0, 14, `TYPE ${s.fx1Type.toUpperCase()}`); this.text(0, 28, `P1 ${Math.round(s.fx1P1 * 100)}`); this.text(0, 40, `P2 ${Math.round(s.fx1P2 * 100)}`); this.text(0, 56, 'KNOBS/ARROWS') }
-  private drawFx2(s: AppState) { this.text(0, 0, 'FX2 *HOLD*'); this.text(0, 14, `TYPE ${s.fx2Type.toUpperCase()}`); this.text(0, 28, `P1 ${Math.round(s.fx2P1 * 100)}`); this.text(0, 40, `P2 ${Math.round(s.fx2P2 * 100)}`); this.text(0, 56, 'KNOBS/ARROWS') }
-  private drawSys(s: AppState) { const items = ['BEAT SYNC...', 'MIDI...', 'INITIALIZE...', 'ABOUT POCKET CHOP']; this.text(0, 0, 'SYSTEM'); items.forEach((t, i) => this.text(0, 12 + i * 10, (i === s.sysIndex ? '>' : ' ') + t.slice(0, 20))) }
-  private drawSysBeat(s: AppState) { this.text(0, 0, 'BEAT SYNC'); this.text(0, 14, `ENABLE ${s.beatSync ? 'ON' : 'OFF'}`); this.text(0, 26, `BPM ${s.bpm}`); this.text(0, 38, `STRETCH ${s.beatSync ? 'ON' : 'OFF'}`); this.text(0, 50, 'MUTEX MIDI SYNC') }
-  private drawSysMidi(s: AppState) { this.text(0, 0, 'MIDI'); this.text(0, 12, `CH ${String(s.midiChannel).padStart(2, '0')}`); this.text(0, 24, `CLK IN ${s.midiClockIn ? 'ON' : 'OFF'}`); this.text(0, 36, `CLK OUT ${s.midiClockOut ? 'ON' : 'OFF'}`); this.text(0, 48, `SYNC ${s.midiSync ? 'ON' : 'OFF'}`) }
-  private drawSysInit(s: AppState) { this.text(0, 0, 'INITIALIZE'); this.text(0, 20, 'WIPE ALL?'); this.text(0, 40, s.delYes ? '[YES]  NO' : ' YES  [NO]') }
+
+  private drawFx1(s: AppState) {
+    this.text(0, 0, 'FX1 *HOLD*')
+    this.text(0, 14, `TYPE ${s.fx1Type.toUpperCase()}`)
+    this.text(0, 28, `P1 ${Math.round(s.fx1P1 * 100)}`)
+    this.text(0, 40, `P2 ${Math.round(s.fx1P2 * 100)}`)
+    this.text(0, 56, 'KNOBS/ARROWS')
+  }
+
+  private drawFx2(s: AppState) {
+    this.text(0, 0, 'FX2 *HOLD*')
+    this.text(0, 14, `TYPE ${s.fx2Type.toUpperCase()}`)
+    this.text(0, 28, `P1 ${Math.round(s.fx2P1 * 100)}`)
+    this.text(0, 40, `P2 ${Math.round(s.fx2P2 * 100)}`)
+    this.text(0, 56, 'KNOBS/ARROWS')
+  }
+
+  private drawSys(s: AppState) {
+    const items = ['BEAT SYNC...', 'MIDI...', 'INITIALIZE...', 'ABOUT POCKET CHOP']
+    this.text(0, 0, 'SYSTEM')
+    items.forEach((t, i) => {
+      this.text(0, 12 + i * 10, (i === s.sysIndex ? '>' : ' ') + t.slice(0, 20))
+    })
+  }
+
+  private drawSysBeat(s: AppState) {
+    this.text(0, 0, 'BEAT SYNC')
+    this.text(0, 14, `ENABLE ${s.beatSync ? 'ON' : 'OFF'}`)
+    this.text(0, 26, `BPM ${s.bpm}`)
+    this.text(0, 38, `STRETCH ${s.beatSync ? 'ON' : 'OFF'}`)
+    this.text(0, 50, 'MUTEX MIDI SYNC')
+  }
+
+  private drawSysMidi(s: AppState) {
+    this.text(0, 0, 'MIDI')
+    this.text(0, 12, `CH ${String(s.midiChannel).padStart(2, '0')}`)
+    this.text(0, 24, `CLK IN ${s.midiClockIn ? 'ON' : 'OFF'}`)
+    this.text(0, 36, `CLK OUT ${s.midiClockOut ? 'ON' : 'OFF'}`)
+    this.text(0, 48, `SYNC ${s.midiSync ? 'ON' : 'OFF'}`)
+  }
+
+  private drawSysInit(s: AppState) {
+    this.text(0, 0, 'INITIALIZE')
+    this.text(0, 20, 'WIPE ALL?')
+    this.text(0, 40, s.delYes ? '[YES]  NO' : ' YES  [NO]')
+  }
 }
 
 export type { UiMode }
