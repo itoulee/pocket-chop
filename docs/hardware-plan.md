@@ -58,8 +58,8 @@ Keep **web app / native desktop (Tauri/CPAL)** as the audio brain; build a dumb 
 
 ```
 MIC (bias) ─┐
-LINE IN ────┼─► Codec ADC ──► MCU I2S RX ──► Record / USB stream
-USB AUDIO ──┘                              │
+LINE IN ──────┼─► Codec ADC ──► MCU I2S RX ──► Record / USB stream
+USB AUDIO ───┘                              │
                                            ▼
 Pads / Seq / FX graph (≤16 stereo voices) ─► I2S TX ─► Codec DAC ─► PHONE / LINE OUT
 ```
